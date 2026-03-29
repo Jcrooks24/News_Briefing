@@ -1,6 +1,6 @@
 import uuid
 import pytz
-from fastapi import APIRouter, Depends, Form, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -164,12 +164,11 @@ async def rotate_token(request: Request, db: Session = Depends(get_db)):
 
 
 @router.post("/account/test-briefing")
-async def test_briefing(request: Request, db: Session = Depends(get_db)):
+async def test_briefing(request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """Trigger an immediate briefing generation for the logged-in user."""
-    import asyncio
     from app.briefing.runner import run_for_user
     user = _current_user(request, db)
     if not user:
         return RedirectResponse("/login", status_code=303)
-    asyncio.get_event_loop().run_in_executor(None, run_for_user, user.id)
+    background_tasks.add_task(run_for_user, user.id)
     return RedirectResponse("/account?generating=1", status_code=303)
