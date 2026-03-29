@@ -156,3 +156,11 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
 .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
 
 a { color: var(--accent); }
+
+.guide-steps, .guide-list {
+  padding-left: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+.guide-steps li, .guide-list li {
+  margin-bottom: 0.5rem;
+}

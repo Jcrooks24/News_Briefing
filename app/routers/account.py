@@ -34,6 +34,11 @@ async def signup_page(request: Request):
     return templates.TemplateResponse(request, "signup.html", {"timezones": ALL_TIMEZONES})
 
 
+@router.get("/setup-guide", response_class=HTMLResponse)
+async def setup_guide(request: Request):
+    return templates.TemplateResponse(request, "setup_guide.html")
+
+
 @router.post("/signup")
 async def signup(
     request: Request,
