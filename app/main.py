@@ -20,8 +20,6 @@ logging.basicConfig(
 async def lifespan(app: FastAPI):
     # Create all DB tables
     Base.metadata.create_all(bind=engine)
-    # Ensure audio directory exists
-    config.AUDIO_DIR.mkdir(parents=True, exist_ok=True)
     # Start scheduler and load existing users
     sched.scheduler.start()
     db = SessionLocal()

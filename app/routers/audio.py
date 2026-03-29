@@ -1,11 +1,10 @@
-from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
-from app import config
 from app.database import get_db
 from app.models import User
+from app.storage import audio_exists, download_audio
 
 router = APIRouter()
 
@@ -16,13 +15,15 @@ async def get_audio(token: str, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404)
 
-    mp3_path = config.AUDIO_DIR / user.audio_token / "latest.mp3"
-    if not mp3_path.exists():
+    if not audio_exists(user.audio_token):
         raise HTTPException(status_code=404, detail="No briefing has been generated yet.")
 
-    return FileResponse(
-        path=mp3_path,
+    audio_bytes = download_audio(user.audio_token)
+    return Response(
+        content=audio_bytes,
         media_type="audio/mpeg",
-        filename="morning_briefing.mp3",
-        headers={"Cache-Control": "no-store"},
+        headers={
+            "Content-Disposition": "inline; filename=morning_briefing.mp3",
+            "Cache-Control": "no-store",
+        },
     )

@@ -6,15 +6,14 @@ Orchestrates one user's full briefing pipeline:
 """
 import logging
 from datetime import datetime
-from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from sqlalchemy.orm import Session
 
-from app import config
 from app.crypto import decrypt
 from app.database import SessionLocal
 from app.models import BriefingRun, User
+from app.storage import upload_audio
 from app.briefing.rss import fetch_all_headlines
 from app.briefing.wildcard import is_wildcard_day, pick_wildcard_topic
 from app.briefing.claude_client import generate_news_script, generate_wildcard_script
@@ -22,18 +21,6 @@ from app.briefing.elevenlabs_client import text_to_speech
 
 log = logging.getLogger(__name__)
 
-
-def _audio_path(audio_token: str) -> Path:
-    return config.AUDIO_DIR / audio_token / "latest.mp3"
-
-
-def _save_mp3(audio_bytes: bytes, audio_token: str) -> Path:
-    out = _audio_path(audio_token)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    tmp = out.with_suffix(".tmp")
-    tmp.write_bytes(audio_bytes)
-    tmp.replace(out)
-    return out
 
 
 def run_for_user(user_id: int) -> None:
@@ -94,8 +81,8 @@ def _execute(user: User, run: BriefingRun, db: Session) -> None:
         voice_id=user.elevenlabs_voice_id,
     )
 
-    out_path = _save_mp3(audio_bytes, user.audio_token)
-    log.info("Saved MP3 → %s (%d KB)", out_path, len(audio_bytes) // 1024)
+    upload_audio(audio_bytes, user.audio_token)
+    log.info("Uploaded MP3 to R2 (%d KB)", len(audio_bytes) // 1024)
 
     run.status      = "success"
     run.mp3_bytes   = len(audio_bytes)
