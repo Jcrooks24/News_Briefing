@@ -5,6 +5,9 @@
 {% if request.query_params.get("saved") %}
 <div class="alert alert-success">Settings saved.</div>
 {% endif %}
+{% if request.query_params.get("generating") %}
+<div class="alert alert-success">Generating your briefing — check back in a couple minutes then try the audio URL.</div>
+{% endif %}
 
 <div class="card">
   <h2>Your alarm URL</h2>
@@ -18,9 +21,14 @@
     <strong>Android:</strong> Use a URL alarm app like "Alarm Clock for Heavy Sleepers".<br>
     <strong>Mac/Windows:</strong> Any media player or script that fetches a URL.
   </p>
-  <form method="post" action="/account/rotate-token" style="margin-top:0.5rem">
-    <button type="submit" class="btn-danger-small" onclick="return confirm('This will break your current alarm URL. Continue?')">Rotate URL</button>
-  </form>
+  <div style="display:flex;gap:0.5rem;margin-top:0.5rem">
+    <form method="post" action="/account/test-briefing">
+      <button type="submit" class="btn-small">Generate now</button>
+    </form>
+    <form method="post" action="/account/rotate-token">
+      <button type="submit" class="btn-danger-small" onclick="return confirm('This will break your current alarm URL. Continue?')">Rotate URL</button>
+    </form>
+  </div>
 </div>
 
 <form method="post" action="/account/update" class="card">

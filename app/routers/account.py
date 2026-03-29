@@ -156,3 +156,15 @@ async def rotate_token(request: Request, db: Session = Depends(get_db)):
     user.audio_token = str(uuid.uuid4())
     db.commit()
     return RedirectResponse("/account?saved=1", status_code=303)
+
+
+@router.post("/account/test-briefing")
+async def test_briefing(request: Request, db: Session = Depends(get_db)):
+    """Trigger an immediate briefing generation for the logged-in user."""
+    import asyncio
+    from app.briefing.runner import run_for_user
+    user = _current_user(request, db)
+    if not user:
+        return RedirectResponse("/login", status_code=303)
+    asyncio.get_event_loop().run_in_executor(None, run_for_user, user.id)
+    return RedirectResponse("/account?generating=1", status_code=303)
