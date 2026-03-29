@@ -31,7 +31,7 @@ def _current_user(request: Request, db: Session) -> User | None:
 
 @router.get("/", response_class=HTMLResponse)
 async def signup_page(request: Request):
-    return templates.TemplateResponse(request, "signup.html", {"timezones": ALL_TIMEZONES})
+    return templates.TemplateResponse(request, "signup.html", {"timezones": ALL_TIMEZONES, "show_welcome": True})
 
 
 @router.get("/setup-guide", response_class=HTMLResponse)

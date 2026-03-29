@@ -7,8 +7,49 @@
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
+
+  {% if show_welcome %}
+  <div class="modal-backdrop" id="welcomeModal">
+    <div class="modal-box">
+      <h2>Wake up informed, every morning.</h2>
+      <p>
+        Morning Briefing is a personal AI alarm that replaces your standard alarm sound
+        with a 3-minute spoken news briefing — generated fresh each night while you sleep.
+      </p>
+      <p>
+        Each morning you wake up to a calm, radio-style summary of the top stories from
+        left, center, and right-leaning sources, read aloud in a voice you choose.
+      </p>
+      <p>
+        Once a week it skips the news entirely and plays something completely random —
+        a deep-dive into an interesting topic, just for fun.
+      </p>
+      <p>
+        Works on iPhone, Android, Mac, and Windows. Takes about 10 minutes to set up.
+      </p>
+      <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
+        <a href="/setup-guide" class="btn-primary" style="flex:1;text-align:center">See setup guide</a>
+        <button class="btn-secondary" onclick="dismissWelcome()">Get started</button>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <div class="container">
     {% block content %}{% endblock %}
   </div>
+
+  {% if show_welcome %}
+  <script>
+    function dismissWelcome() {
+      document.getElementById('welcomeModal').style.display = 'none';
+      localStorage.setItem('welcomed', '1');
+    }
+    if (localStorage.getItem('welcomed')) {
+      document.getElementById('welcomeModal').style.display = 'none';
+    }
+  </script>
+  {% endif %}
+
 </body>
 </html>

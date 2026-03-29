@@ -157,6 +157,26 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
 
 a { color: var(--accent); }
 
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+.modal-box {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 2rem;
+  max-width: 480px;
+  width: 100%;
+}
+.modal-box h2 { font-size: 1.3rem; margin-bottom: 1rem; }
+.modal-box p  { color: #444; margin-bottom: 0.75rem; }
+
 .guide-steps, .guide-list {
   padding-left: 1.25rem;
   margin-bottom: 0.75rem;
