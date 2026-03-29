@@ -24,6 +24,7 @@ class User(Base):
     is_active           = Column(Boolean, nullable=False, default=False)
     created_at          = Column(DateTime, nullable=False, default=datetime.utcnow)
     last_login_at       = Column(DateTime, nullable=True)
+    latest_audio        = Column(LargeBinary, nullable=True)   # most recent MP3 bytes
 
 
 class MagicLink(Base):

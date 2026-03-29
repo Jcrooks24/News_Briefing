@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import User
-from app.storage import audio_exists, download_audio
 
 router = APIRouter()
 
@@ -15,12 +14,11 @@ async def get_audio(token: str, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404)
 
-    if not audio_exists(user.audio_token):
+    if not user.latest_audio:
         raise HTTPException(status_code=404, detail="No briefing has been generated yet.")
 
-    audio_bytes = download_audio(user.audio_token)
     return Response(
-        content=audio_bytes,
+        content=user.latest_audio,
         media_type="audio/mpeg",
         headers={
             "Content-Disposition": "inline; filename=morning_briefing.mp3",
