@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Log In — Morning Briefing{% endblock %}
+{% block content %}
+<h1>Morning Briefing</h1>
+
+<form method="post" action="/auth/magic-link" class="card">
+  <h2>Log in</h2>
+  <p>Enter your email and we'll send you a login link. No password needed.</p>
+
+  <label>Email address
+    <input type="email" name="email" required placeholder="you@example.com" autofocus />
+  </label>
+
+  <button type="submit" class="btn-primary">Send login link →</button>
+</form>
+
+<p class="center-text">Don't have an account? <a href="/">Sign up</a></p>
+{% endblock %}

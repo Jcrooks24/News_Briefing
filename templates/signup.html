@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Set Up Your Briefing{% endblock %}
+{% block content %}
+<h1>Morning Briefing</h1>
+<p class="subtitle">Your daily AI-powered news alarm. Set it up once, wake up informed.</p>
+
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<form method="post" action="/signup" class="card">
+  <h2>Create your account</h2>
+
+  <label>Your first name
+    <input type="text" name="name" required placeholder="Alex" />
+  </label>
+
+  <label>Email address
+    <input type="email" name="email" required placeholder="you@example.com" />
+  </label>
+
+  <hr />
+  <h3>API Keys</h3>
+  <p class="hint">
+    Need keys?
+    <a href="https://console.anthropic.com/account/keys" target="_blank">Get Anthropic key</a> ·
+    <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank">Get ElevenLabs key</a>
+  </p>
+
+  <label>Anthropic API key
+    <input type="password" name="anthropic_key" required placeholder="sk-ant-..." autocomplete="off" />
+  </label>
+
+  <label>ElevenLabs API key
+    <input type="password" name="elevenlabs_key" required placeholder="..." autocomplete="off" />
+  </label>
+
+  <label>ElevenLabs Voice ID
+    <input type="text" name="elevenlabs_voice_id" required placeholder="pNInz6obpgDQGcFmaJgB" />
+    <span class="hint">Find yours in the <a href="https://elevenlabs.io/app/voice-library" target="_blank">Voice Library</a> → click a voice → API ID</span>
+  </label>
+
+  <hr />
+  <h3>Delivery time</h3>
+
+  <label>What time do you wake up?
+    <input type="time" name="briefing_time" required value="06:00" />
+    <span class="hint">Your briefing will be ready 30–60 minutes before this. Set it to when you want to <em>hear</em> it.</span>
+  </label>
+
+  <label>Your timezone
+    <select name="timezone">
+      {% for tz in timezones %}
+      <option value="{{ tz }}" {% if tz == "America/New_York" %}selected{% endif %}>{{ tz }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <button type="submit" class="btn-primary">Create my briefing →</button>
+</form>
+
+<p class="center-text">Already set up? <a href="/login">Log in</a></p>
+{% endblock %}

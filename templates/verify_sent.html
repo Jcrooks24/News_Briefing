@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Check Your Email — Morning Briefing{% endblock %}
+{% block content %}
+<div class="card center-text">
+  <div class="icon">📬</div>
+  <h2>Check your email</h2>
+  {% if message %}
+  <p>{{ message }}</p>
+  {% else %}
+  <p>We sent you a login link. Click it to activate your account and you're all set.</p>
+  <p class="hint">It expires in 15 minutes. Check your spam folder if you don't see it.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Your Briefing — Morning Briefing{% endblock %}
+{% block content %}
+
+{% if request.query_params.get("saved") %}
+<div class="alert alert-success">Settings saved.</div>
+{% endif %}
+
+<div class="card">
+  <h2>Your alarm URL</h2>
+  <p>Set your alarm app to play this URL. It always serves your latest briefing.</p>
+  <div class="audio-url">
+    <code>{{ audio_url }}</code>
+    <button onclick="navigator.clipboard.writeText('{{ audio_url }}')" class="btn-small">Copy</button>
+  </div>
+  <p class="hint">
+    <strong>iPhone:</strong> Use the Shortcuts app → "Get Contents of URL" → play audio.<br>
+    <strong>Android:</strong> Use a URL alarm app like "Alarm Clock for Heavy Sleepers".<br>
+    <strong>Mac/Windows:</strong> Any media player or script that fetches a URL.
+  </p>
+  <form method="post" action="/account/rotate-token" style="margin-top:0.5rem">
+    <button type="submit" class="btn-danger-small" onclick="return confirm('This will break your current alarm URL. Continue?')">Rotate URL</button>
+  </form>
+</div>
+
+<form method="post" action="/account/update" class="card">
+  <h2>Settings</h2>
+
+  <label>Your first name
+    <input type="text" name="name" required value="{{ user.name }}" />
+  </label>
+
+  <hr />
+  <h3>API Keys</h3>
+  <p class="hint">Leave blank to keep your current keys.</p>
+
+  <label>Anthropic API key
+    <input type="password" name="anthropic_key" placeholder="(unchanged)" autocomplete="off" />
+  </label>
+
+  <label>ElevenLabs API key
+    <input type="password" name="elevenlabs_key" placeholder="(unchanged)" autocomplete="off" />
+  </label>
+
+  <label>ElevenLabs Voice ID
+    <input type="text" name="elevenlabs_voice_id" required value="{{ user.elevenlabs_voice_id }}" />
+  </label>
+
+  <hr />
+  <h3>Delivery time</h3>
+
+  <label>Briefing time
+    <input type="time" name="briefing_time" required
+      value="{{ '%02d:%02d' | format(user.briefing_hour, user.briefing_minute) }}" />
+  </label>
+
+  <label>Timezone
+    <select name="timezone">
+      {% for tz in timezones %}
+      <option value="{{ tz }}" {% if tz == user.timezone %}selected{% endif %}>{{ tz }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <button type="submit" class="btn-primary">Save settings</button>
+</form>
+
+<div class="card">
+  <form method="post" action="/auth/logout">
+    <button type="submit" class="btn-secondary">Log out</button>
+  </form>
+</div>
+
+{% endblock %}
