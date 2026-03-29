@@ -1,3 +1,4 @@
+import uuid
 import pytz
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -30,7 +31,7 @@ def _current_user(request: Request, db: Session) -> User | None:
 
 @router.get("/", response_class=HTMLResponse)
 async def signup_page(request: Request):
-    return templates.TemplateResponse("signup.html", {"request": request, "timezones": ALL_TIMEZONES})
+    return templates.TemplateResponse(request, "signup.html", {"timezones": ALL_TIMEZONES})
 
 
 @router.post("/signup")
@@ -41,39 +42,35 @@ async def signup(
     anthropic_key: str = Form(...),
     elevenlabs_key: str = Form(...),
     elevenlabs_voice_id: str = Form(...),
-    briefing_time: str = Form(...),   # "HH:MM" from <input type="time">
+    briefing_time: str = Form(...),
     timezone: str = Form(...),
     db: Session = Depends(get_db),
 ):
     email = email.lower().strip()
 
-    # Validate timezone
     if timezone not in pytz.all_timezones:
         return templates.TemplateResponse(
-            "signup.html",
-            {"request": request, "timezones": ALL_TIMEZONES, "error": "Invalid timezone selected."},
+            request, "signup.html",
+            {"timezones": ALL_TIMEZONES, "error": "Invalid timezone selected."},
             status_code=400,
         )
 
-    # Parse time
     try:
         hour, minute = [int(x) for x in briefing_time.split(":")]
     except ValueError:
         return templates.TemplateResponse(
-            "signup.html",
-            {"request": request, "timezones": ALL_TIMEZONES, "error": "Invalid time format."},
+            request, "signup.html",
+            {"timezones": ALL_TIMEZONES, "error": "Invalid time format."},
             status_code=400,
         )
 
-    # Check if email already registered
     existing = db.query(User).filter(User.email == email).first()
     if existing:
-        # Re-send a login link instead
         token = create_magic_link(existing, db)
         send_magic_link(existing.email, existing.name, token)
         return templates.TemplateResponse(
-            "verify_sent.html",
-            {"request": request, "message": "That email is already registered. We sent you a login link."},
+            request, "verify_sent.html",
+            {"message": "That email is already registered. We sent you a login link."},
         )
 
     user = User(
@@ -93,7 +90,7 @@ async def signup(
 
     token = create_magic_link(user, db)
     send_magic_link(user.email, user.name, token)
-    return templates.TemplateResponse("verify_sent.html", {"request": request})
+    return templates.TemplateResponse(request, "verify_sent.html")
 
 
 # ---------------------------------------------------------------------------
@@ -107,8 +104,8 @@ async def account_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/login", status_code=303)
     audio_url = f"{config.BASE_URL}/audio/{user.audio_token}"
     return templates.TemplateResponse(
-        "account.html",
-        {"request": request, "user": user, "timezones": ALL_TIMEZONES, "audio_url": audio_url},
+        request, "account.html",
+        {"user": user, "timezones": ALL_TIMEZONES, "audio_url": audio_url},
     )
 
 
@@ -147,17 +144,15 @@ async def account_update(
         user.elevenlabs_key_enc = encrypt(elevenlabs_key.strip())
 
     db.commit()
-    sched.schedule_user(user)  # reschedule with new time/timezone
+    sched.schedule_user(user)
     return RedirectResponse("/account?saved=1", status_code=303)
 
 
 @router.post("/account/rotate-token")
 async def rotate_token(request: Request, db: Session = Depends(get_db)):
-    """Give the user a fresh audio token, invalidating the old URL."""
     user = _current_user(request, db)
     if not user:
         return RedirectResponse("/login", status_code=303)
-    import uuid
     user.audio_token = str(uuid.uuid4())
     db.commit()
     return RedirectResponse("/account?saved=1", status_code=303)
